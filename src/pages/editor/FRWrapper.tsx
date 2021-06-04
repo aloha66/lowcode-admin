@@ -2,15 +2,7 @@
  * 基本布局
  * 左侧tab  右侧工作台
  */
-import React, {
-  useEffect,
-  useRef,
-  forwardRef,
-  FC,
-  useState,
-  useMemo,
-  memo,
-} from 'react';
+import React, { useEffect, useRef, FC, useState, useMemo } from 'react';
 import { Tabs } from 'antd';
 import styled from 'styled-components';
 import {
@@ -133,7 +125,7 @@ const FRWrapper: FC = () => {
                 <EleTitle>{sec.title}</EleTitle>
                 <EleWrap>
                   {sec.elements.map((ele, k) => (
-                    <Element key={k} {...ele}>
+                    <Element key={ele.name} {...ele}>
                       {ele.text}
                     </Element>
                   ))}

@@ -1,12 +1,12 @@
 import React, { FC, useEffect } from 'react';
 import FormRender, { useForm } from 'form-render';
-import { Loading, connect } from 'umi';
-import type { PartOfMain, PageProps, EditorModelState } from './types';
+import { useStore } from 'umi';
 import { flattenToData, dataToFlatten } from './utils/utils';
 
-const PreviewFR: FC<PageProps> = (props) => {
+const PreviewFR = () => {
   const form = useForm();
-  const { flatten, widgets, mapping, displaySchema } = props.editor;
+  const { editor } = useStore().getState();
+  const { flatten, widgets, mapping, displaySchema } = editor;
   console.log('displaySchema', displaySchema);
 
   useEffect(() => {
@@ -28,9 +28,4 @@ const PreviewFR: FC<PageProps> = (props) => {
   );
 };
 
-export default connect(
-  ({ editor, loading }: { editor: EditorModelState; loading: Loading }) => ({
-    editor,
-    loading: loading.models.index,
-  }),
-)(PreviewFR);
+export default PreviewFR;

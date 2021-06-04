@@ -6,32 +6,25 @@
  */
 import React, { FC, useEffect } from 'react';
 import FRWrapper from './FRWrapper';
-import { Loading, connect } from 'umi';
+import { useStore } from 'umi';
 import {
   // @ts-expect-error
   widgets as defaultWidgets,
   // @ts-expect-error
   mapping as defaultMapping,
 } from 'form-render';
-import type { PartOfMain, PageProps, EditorModelState } from './types';
+import type { PartOfMain } from './types';
 import { fromFormRender, toFormRender } from './transformer/form-render';
-
-type MainProps = PartOfMain & PageProps;
 
 const DEFAULT_SCHEMA = {
   type: 'object',
   properties: {},
 };
 
-const Main: FC<MainProps> = (props) => {
-  const {
-    defaultValue,
-    widgets = {},
-    mapping = {},
-    transformer,
-    editor,
-    dispatch,
-  } = props;
+const Main: FC<PartOfMain> = (props) => {
+  const { defaultValue, widgets = {}, mapping = {}, transformer } = props;
+
+  const { dispatch } = useStore();
 
   let transformFrom = fromFormRender;
   let transformTo = toFormRender;
@@ -67,11 +60,4 @@ const Main: FC<MainProps> = (props) => {
   return <FRWrapper />;
 };
 
-export default connect(
-  ({ editor, loading }: { editor: EditorModelState; loading: Loading }) => ({
-    editor,
-    loading: loading.models.index,
-  }),
-)(Main);
-
-// export default Main;
+export default Main;

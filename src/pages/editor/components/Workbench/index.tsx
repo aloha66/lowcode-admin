@@ -10,6 +10,7 @@ import { Tabs } from 'antd';
 import { DoubleRightOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 import { useToggle } from 'ahooks';
 import FormRender, { useForm } from 'form-render';
+import { useStore } from 'umi';
 import { defaultGlobalSettings, apiTest } from '@conf/schema';
 import LeftRight from '@com/layout/LeftRight';
 import FieldList from '../FieldList';
@@ -103,6 +104,8 @@ const Right = ({ show, toggle }: { show: boolean; toggle: () => void }) => {
 };
 
 const Workbench: FC = () => {
+  const { editor } = useStore().getState();
+  const { preview } = editor;
   console.log('Workbench render');
   const [state, { toggle }] = useToggle(true);
   return (
@@ -113,7 +116,7 @@ const Workbench: FC = () => {
       right={
         <Wrap>
           <DndContainer show={state}>
-            <PreviewFR />
+            {preview ? <PreviewFR /> : <FR />}
           </DndContainer>
 
           {/* <FR /> */}
