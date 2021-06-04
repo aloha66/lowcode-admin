@@ -30,9 +30,14 @@ const Right = styled.div`
   background: #fff;
 `;
 
+const Title = styled.div`
+  text-indent: 2em;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+`;
+
 const Head = styled.div`
   position: relative;
-  text-align: center;
   line-height: 40px;
 `;
 
@@ -65,12 +70,20 @@ const LeftArrow: FC<ClickEvent> = (props) => (
 interface LeftRightProps {
   left: React.ReactNode;
   right: React.ReactNode;
+  aside?: React.ReactNode;
   title?: string;
   width?: number;
   mr?: number;
 }
 
-const LeftRight: FC<LeftRightProps> = ({ left, right, title, width, mr }) => {
+const LeftRight: FC<LeftRightProps> = ({
+  left,
+  right,
+  aside,
+  title,
+  width,
+  mr,
+}) => {
   const [state, { toggle }] = useToggle(true);
   const leftRef = useRef(null);
 
@@ -96,10 +109,11 @@ const LeftRight: FC<LeftRightProps> = ({ left, right, title, width, mr }) => {
           ) : (
             <RightArrow onClick={() => toggle()} />
           )}
-          {title || 'title'}
+          <Title>{title || 'title'}</Title>
         </Head>
         {right}
       </Right>
+      {aside}
     </Wrap>
   );
 };

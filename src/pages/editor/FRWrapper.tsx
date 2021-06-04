@@ -1,3 +1,7 @@
+/**
+ * 基本布局
+ * 左侧tab  右侧工作台
+ */
 import React, {
   useEffect,
   useRef,
@@ -5,6 +9,7 @@ import React, {
   FC,
   useState,
   useMemo,
+  memo,
 } from 'react';
 import { Tabs } from 'antd';
 import styled from 'styled-components';
@@ -116,7 +121,6 @@ const generateHeader = ({ key, tab }: GenerateHeaderProps) => (
 const FRWrapper: FC = () => {
   console.log('FRWrapper render');
   const [collapsed, toggle] = useWindowResize();
-  console.log('collapsed', collapsed);
 
   const commonTabRender = useMemo(() => {
     return (

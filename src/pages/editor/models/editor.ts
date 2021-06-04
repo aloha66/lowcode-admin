@@ -1,65 +1,38 @@
-import { Effect, ImmerReducer, Subscription } from 'umi';
+import { Effect, ImmerReducer, Reducer, Subscription } from 'umi';
+import type { EditorModelState } from '../types';
+import {
+  combineSchema,
+  flattenSchema,
+  dataToFlatten,
+  idToSchema,
+} from '../utils/utils';
 
-/**
- * 全局状态
- * @param frProps form-render 的全局props
- */
-export interface EditorModelState {
-  preview?: boolean;
-  schema?: any;
-  flatten: {
-    [key: string]: {
-      schema: {
-        type: 'object' | 'array' | (string & {});
-        enum: unknown;
-        width: number;
-        widget: string;
-        title: string;
-      };
-      children: object[];
-    };
-  };
-  displaySchema: any;
-  selected: undefined; // 被选中的$id, 如果object/array的内部，以首字母0标识
-}
-
-export interface IndexModelType {
+export interface EditorModelType {
   state: EditorModelState;
   effects: {
     query: Effect;
   };
   reducers: {
-    displayType: ImmerReducer<EditorModelState>;
+    // 启用 immer 之后
     setSchema: ImmerReducer<EditorModelState>;
-    setFormData: ImmerReducer<EditorModelState>;
+    setInit: ImmerReducer<EditorModelState>;
     setFlatten: ImmerReducer<EditorModelState>;
-    setSchemaAndFormData: ImmerReducer<EditorModelState>;
-    setInitProps: ImmerReducer<EditorModelState>;
+    setDisplaySchema: ImmerReducer<EditorModelState>;
   };
-  subscriptions: { displayType: Subscription };
+  subscriptions: { setup: Subscription };
 }
 
-const DEFAULT_SCHEMA = {
-  schema: {
-    type: 'object',
-    properties: {},
-  },
-  uiSchema: {},
-  formData: {},
-};
-
-const IndexModel: IndexModelType = {
+const EditorModel: EditorModelType = {
   state: {
-    formData: {},
-    frProps: {
-      displayType: 'row',
-    }, // form-render 的全局props等
-    hovering: undefined, // 目前没有用到
     preview: false, // preview = false 是编辑模式
     schema: {},
+    widgets: {},
+    mapping: {},
     flatten: {},
+    formData: {},
     displaySchema: {},
-    selected: undefined, // 被选中的$id, 如果object/array的内部，以首字母0标识
+    frProps: {},
+    transformTo: () => {},
   },
 
   effects: {
@@ -67,57 +40,47 @@ const IndexModel: IndexModelType = {
   },
   reducers: {
     // 启用 immer 之后
-    // save(state, action) {
-    //   state.name = action.payload;
-    // },
-    displayType(state) {
-      state.frProps.showDescIcon = state.frProps.displayType === 'row';
+    setSchema(state, { payload }) {
+      state.schema = payload;
     },
-    setFormData(state, action) {
-      state.formData = action.payload;
-    },
-    setSchema(state, action) {
-      state.schema = action.payload;
-    },
-    setFlatten(state, action) {
-      // state.flatten = action.payload;
-      console.log('setFlatten', state);
-    },
-    setInitProps(state, action) {
-      state.widgets = action.payload.widgets;
-      state.mapping = action.payload.mapping;
-    },
-    setSchemaAndFormData(state, action) {
-      state.schema = action.payload.schema;
-      state.formData = action.payload.formData;
-      // 获取一层结构
+    setFlatten(state, { payload: schema }) {
+      state.schema = schema;
       let _schema = {};
-      if (state.schema) {
-        _schema = combineSchema(state.schema.schema, state.schema.uiSchema); // TODO: 要不要判断是否都是object
+      if (schema) {
+        _schema = combineSchema(schema); // TODO: 要不要判断是否都是object
       }
       const flatten = flattenSchema(_schema);
       const flattenWithData = dataToFlatten(flatten, state.formData);
+
       state.flatten = flattenWithData;
-      // 获取Schema
-      let displaySchema = {};
-      let displaySchemaString = '';
+    },
+    setDisplaySchema(state) {
       try {
         const _schema = {
-          ...idToSchema(flattenWithData, '#', true),
+          ...idToSchema(state.flatten, '#', true),
           ...state.frProps,
         };
-        state.displaySchema = action.transformTo(_schema);
-        // displaySchemaString = JSON.stringify(displaySchema, null, 2);
+        const displaySchema = state.transformTo(_schema);
+        state.displaySchema = displaySchema;
       } catch (error) {}
+    },
+    setInit(state, { payload: { widgets, mapping, transformTo } }) {
+      state.widgets = widgets;
+      state.mapping = mapping;
+      state.transformTo = transformTo;
     },
   },
   subscriptions: {
-    displayType({ dispatch }) {
-      dispatch({
-        type: 'displayType',
+    setup({ dispatch, history }) {
+      return history.listen(({ pathname }) => {
+        if (pathname === '/') {
+          dispatch({
+            type: 'query',
+          });
+        }
       });
     },
   },
 };
 
-export default IndexModel;
+export default EditorModel;
