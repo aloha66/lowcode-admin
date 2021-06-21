@@ -15,6 +15,7 @@ export const defaultGlobalSettings = {
       type: 'number',
       widget: 'slider',
       max: 300,
+      default: 120,
       props: {
         hideNumber: true,
       },

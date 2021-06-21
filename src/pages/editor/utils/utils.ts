@@ -313,7 +313,7 @@ export const addItem = ({ selected, name, schema, flatten }) => {
   let newId;
   // string第一个是0，说明点击了object、list的里侧
   if ((_selected && _selected[0] === '0') || _selected === '#') {
-    const newFlatten = { ...flatten };
+    const newFlatten = deepClone(flatten);
     try {
       let oldId = _selected.substring(1);
       newId = oldId + '/' + name + '_' + nanoid(6);
@@ -340,7 +340,7 @@ export const addItem = ({ selected, name, schema, flatten }) => {
   idArr.pop();
   idArr.push(_name);
   newId = idArr.join('/');
-  const newFlatten = { ...flatten };
+  const newFlatten = deepClone(flatten);
   try {
     const item = newFlatten[selected];
     const siblings = newFlatten[item.parent].children;
@@ -362,7 +362,7 @@ export const addItem = ({ selected, name, schema, flatten }) => {
 // position 代表 drop 在元素的哪里: 'up' 上 'down' 下 'inside' 内部
 export const dropItem = ({ dragId, dragItem, dropId, position, flatten }) => {
   const _position = dropId === '#' ? 'inside' : position;
-  let newFlatten = { ...flatten };
+  let newFlatten = deepClone(flatten);
   // 会动到三块数据，dragItem, dragParent, dropParent. 其中dropParent可能就是dropItem（inside的情况）
   if (dragItem) {
     newFlatten[dragId] = dragItem;
@@ -370,7 +370,7 @@ export const dropItem = ({ dragId, dragItem, dropId, position, flatten }) => {
   const _dragItem = dragItem || newFlatten[dragId];
 
   const dropItem = newFlatten[dropId];
-  let dropParent = dropItem;
+  let dropParent = { ...dropItem };
   if (_position !== 'inside') {
     const parentId = dropItem.parent;
     dropParent = newFlatten[parentId];

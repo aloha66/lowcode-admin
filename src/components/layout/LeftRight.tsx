@@ -25,6 +25,8 @@ const Left = styled.div`
 `;
 
 const Right = styled.div`
+  display: flex;
+  flex-direction: column;
   flex: 1;
   z-index: 0; // 防止左侧元素视图层级比右侧高 出现遮挡
   background: #fff;

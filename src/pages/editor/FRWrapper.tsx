@@ -139,7 +139,7 @@ const FRWrapper: FC = () => {
   }, [collapsed]);
 
   return (
-    <Wrapper>
+    <Wrapper className="fr-generator-container">
       <Header />
       <Container>
         <Left collapsed={collapsed}>

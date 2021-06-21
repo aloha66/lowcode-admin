@@ -27,7 +27,7 @@
     "antd": "^4.16.1",
     "axios": "^0.21.1",
     "clone": "^2.1.2",
-    "form-render": "^1.4.4",
+    "form-render": "^1.5.6",
     "nanoid": "^3.1.23",
     "react-dnd": "^14.0.2",
     "react-dnd-html5-backend": "^14.0.0",

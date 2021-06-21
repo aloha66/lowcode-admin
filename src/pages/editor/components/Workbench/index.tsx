@@ -4,18 +4,20 @@
  * 右侧拖曳区域（预览区域）
  * 右侧侧边栏
  */
-import React, { FC, useRef, useState } from 'react';
+import React, { FC, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Tabs } from 'antd';
 import { DoubleRightOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 import { useToggle } from 'ahooks';
 import FormRender, { useForm } from 'form-render';
-import { useStore } from 'umi';
+import { useSelector } from 'umi';
+import type { PageProps, EditorModelState } from '../../types';
 import { defaultGlobalSettings, apiTest } from '@conf/schema';
 import LeftRight from '@com/layout/LeftRight';
 import FieldList from '../FieldList';
 import FR from '../FR';
 import PreviewFR from '../../PreviewFR';
+import ComSetting from '../ComSetting';
 // import { getWidgetName } from '../../../../utils/mapping';
 
 const { TabPane } = Tabs;
@@ -23,14 +25,15 @@ const { TabPane } = Tabs;
 const Wrap = styled.div`
   flex: 1;
   display: flex;
-  height: 100%;
+  overflow: auto;
+  /* height: 100%; */
   padding: 0 8px;
   /* background: #f2f2f2; */
 `;
 
 const DndContainer = styled.div`
   flex-grow: 1;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   background: #fff;
   margin-right: ${(props: { show: boolean }) => (props.show ? `304px` : 0)};
   transition: all 0.5s ease-in-out 0s;
@@ -51,9 +54,12 @@ const RightBtn = styled.div`
   cursor: pointer;
   transition: all 0.5s ease-in-out 0s;
 `;
+const RightWrapper = styled.div`
+  position: relative;
+`;
 
 const RightWrap = styled.div`
-  position: fixed;
+  position: absolute;
   right: 0;
   overflow: auto;
   transform: ${(props: { show: boolean }) =>
@@ -70,41 +76,42 @@ const RightWrap = styled.div`
 `;
 
 const Right = ({ show, toggle }: { show: boolean; toggle: () => void }) => {
+  const editor = useSelector<PageProps, EditorModelState>(
+    (state: PageProps) => state.editor,
+  );
+  const { selected } = editor;
+  const showComSettings = useMemo(
+    () => !['', '#'].includes(selected),
+    [selected],
+  );
   const form = useForm();
-
-  // const [showItemSettings, setShowItemSettings] = useState(1);
 
   const onFinish = () => {};
   return (
-    <div>
+    <RightWrapper>
       <RightWrap show={show}>
         <Tabs defaultActiveKey="1" onChange={() => {}}>
-          {/* {showItemSettings && (
+          {showComSettings && (
             <TabPane tab="组件配置" key="1">
-              <ItemSettings />
+              <ComSetting />
             </TabPane>
-          )} */}
-          <TabPane tab="表单配置" key={'1'}>
-            <FormRender
-              form={form}
-              schema={defaultGlobalSettings}
-              onFinish={onFinish}
-              //   watch={{
-              //     '#': v => onDataChange(v),
-              //   }}
-            />
+          )}
+          <TabPane tab="表单配置" key={showComSettings ? '2' : '1'}>
+            {/* <FormRender form={form} schema={defaultGlobalSettings} /> */}
           </TabPane>
         </Tabs>
       </RightWrap>
       <RightBtn show={show} onClick={() => toggle()}>
         {show ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
       </RightBtn>
-    </div>
+    </RightWrapper>
   );
 };
 
 const Workbench: FC = () => {
-  const { editor } = useStore().getState();
+  const editor = useSelector<PageProps, EditorModelState>(
+    (state: PageProps) => state.editor,
+  );
   const { preview } = editor;
   console.log('Workbench render');
   const [state, { toggle }] = useToggle(true);

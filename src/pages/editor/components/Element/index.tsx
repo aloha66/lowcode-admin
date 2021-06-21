@@ -1,13 +1,10 @@
-import React, {
-  useEffect,
-  useRef,
-  forwardRef,
-  FC,
-  useState,
-  useMemo,
-} from 'react';
+import React, { FC } from 'react';
+import { useStore, useSelector } from 'umi';
+import type { Schema, PageProps, EditorModelState } from '../../types';
 import { useDrag } from 'react-dnd';
+import { nanoid } from 'nanoid';
 import styled from 'styled-components';
+import { addItem } from '../../utils/utils';
 
 const EleItem = styled.li`
   width: 107px;
@@ -21,7 +18,10 @@ const EleItem = styled.li`
 `;
 
 interface ElementProps {
-  //   text: string;
+  text: string;
+  name: string;
+  schema: Schema;
+  icon: unknown;
 }
 
 const Element: FC<ElementProps> = ({ text, name, schema, icon, children }) => {
@@ -33,6 +33,7 @@ const Element: FC<ElementProps> = ({ text, name, schema, icon, children }) => {
         schema,
         children: [],
       },
+      $id: `#/${name}_${nanoid(6)}`,
     },
     end: (item, monitor) => {
       const dropResult = monitor.getDropResult();
@@ -44,8 +45,21 @@ const Element: FC<ElementProps> = ({ text, name, schema, icon, children }) => {
       isDragging: monitor.isDragging(),
     }),
   });
+
+  const editor = useSelector<PageProps, EditorModelState>(
+    (state: PageProps) => state.editor,
+  );
+
+  const { dispatch } = useStore();
+  const { flatten, selected } = editor;
+
+  const handleElementClick = () => {
+    const { newId, newFlatten } = addItem({ selected, name, schema, flatten });
+    dispatch?.({ type: 'editor/onFlattenChange', payload: { newFlatten } });
+    dispatch?.({ type: 'editor/setSelected', payload: newId });
+  };
   return (
-    <EleItem className="EleItem" ref={dragRef}>
+    <EleItem className="EleItem" ref={dragRef} onClick={handleElementClick}>
       {children}
     </EleItem>
   );
